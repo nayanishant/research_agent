@@ -14,6 +14,7 @@ socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
 
 class WorkflowRequest(BaseModel):
     question: str
+    search_type: str
 
 
 @app.post("/workflow/start")
@@ -21,17 +22,19 @@ async def start(req: WorkflowRequest):
 
     workflow_id = str(uuid.uuid4())
 
+    search_type = "Quick Research" if req.search_type is None or req.search_type == "" else req.search_type
+
     # start workflow after small delay
-    asyncio.create_task(delayed_start(workflow_id, req.question))
+    asyncio.create_task(delayed_start(workflow_id, req.question, search_type))
 
     return {"workflow_id": workflow_id}
 
 
-async def delayed_start(workflow_id, question):
+async def delayed_start(workflow_id, question, search_type):
 
-    await asyncio.sleep(2)
+    await asyncio.sleep(1)
 
-    await start_workflow(workflow_id, question, sio)
+    await start_workflow(workflow_id, question, search_type, sio)
 
 
 @sio.event

@@ -4,7 +4,7 @@ from agent.main import app, SearchQuery
 # from langchain_core.load.dump import dumps
 
 
-async def start_workflow(workflow_id, question, sio):
+async def start_workflow(workflow_id, question, search_type, sio):
     current_step = None  # Track the currently active step
 
     await sio.emit(
@@ -13,7 +13,7 @@ async def start_workflow(workflow_id, question, sio):
         room=[workflow_id, "glb_stream"],
     )
 
-    async for event in app.astream_events({"messages": [question]}, version="v1"):
+    async for event in app.astream_events({"messages": [question], "search_type": search_type}, version="v1"):
         event_type = event["event"]
         name = event.get("name")
 
